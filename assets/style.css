@@ -82,6 +82,39 @@ body {
   padding: 96px 22px 72px;
 }
 
+/* 보름달 + 토끼 배경 그림 */
+.hero__scene {
+  position: absolute;
+  bottom: -18px;
+  right: -18px;
+  width: clamp(260px, 32vw, 400px);
+  pointer-events: none;
+  animation: floaty 9s ease-in-out infinite;
+  z-index: 0;
+}
+
+.hero__scene img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 24px 48px rgba(226, 168, 195, 0.28));
+}
+
+.hero > *:not(.hero__scene) {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-1deg);
+  }
+}
+
 .hero__eyebrow {
   margin: 0 0 18px;
   font-family: var(--font-hand);
@@ -955,6 +988,13 @@ body {
   .hero {
     min-height: 82vh;
     padding-top: 72px;
+  }
+
+  .hero__scene {
+    width: 62vw;
+    right: -8vw;
+    bottom: 4px;
+    opacity: 0.95;
   }
 
   .hero__br {

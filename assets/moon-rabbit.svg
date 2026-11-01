@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" role="img" aria-label="보름달 위의 토끼">
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF2F8" stop-opacity="0.95" />
+      <stop offset="55%" stop-color="#FFE6F0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#FFE6F0" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="moonBody" cx="34%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#FFFDF2" />
+      <stop offset="36%" stop-color="#FBEDCB" />
+      <stop offset="68%" stop-color="#F2DAA9" />
+      <stop offset="100%" stop-color="#E0C08A" />
+    </radialGradient>
+
+    <radialGradient id="moonShade" cx="74%" cy="78%" r="62%">
+      <stop offset="0%" stop-color="#C99AB6" stop-opacity="0" />
+      <stop offset="62%" stop-color="#C99AB6" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#B8849F" stop-opacity="0.42" />
+    </radialGradient>
+
+    <radialGradient id="crater" cx="42%" cy="36%" r="62%">
+      <stop offset="0%" stop-color="#C7A16C" stop-opacity="0.62" />
+      <stop offset="72%" stop-color="#C7A16C" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#C7A16C" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="fur" cx="36%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="52%" stop-color="#FDF6F3" />
+      <stop offset="82%" stop-color="#F3E2DE" />
+      <stop offset="100%" stop-color="#E4CDC9" />
+    </radialGradient>
+
+    <radialGradient id="furHead" cx="34%" cy="26%" r="78%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#FEF8F6" />
+      <stop offset="100%" stop-color="#EFDCD8" />
+    </radialGradient>
+
+    <linearGradient id="innerEar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE1EC" />
+      <stop offset="100%" stop-color="#F6AFC8" />
+    </linearGradient>
+
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFB9D2" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FFB9D2" stop-opacity="0" />
+    </radialGradient>
+
+    <filter id="blur6" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" />
+    </filter>
+    <filter id="blur3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" />
+    </filter>
+    <filter id="drop" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#B98BA8" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- 달 주변 빛무리 -->
+  <circle cx="270" cy="180" r="205" fill="url(#halo)" />
+
+  <!-- 달 -->
+  <g filter="url(#drop)">
+    <circle cx="270" cy="180" r="118" fill="url(#moonBody)" />
+
+    <!-- 크레이터 -->
+    <g opacity="0.9">
+      <ellipse cx="228" cy="128" rx="27" ry="22" fill="url(#crater)" filter="url(#blur6)" />
+      <ellipse cx="312" cy="150" rx="18" ry="15" fill="url(#crater)" filter="url(#blur6)" />
+      <ellipse cx="248" cy="206" rx="22" ry="17" fill="url(#crater)" filter="url(#blur6)" />
+      <ellipse cx="330" cy="214" rx="13" ry="11" fill="url(#crater)" filter="url(#blur6)" />
+      <ellipse cx="296" cy="248" rx="16" ry="12" fill="url(#crater)" filter="url(#blur6)" />
+      <ellipse cx="212" cy="176" rx="11" ry="9" fill="url(#crater)" filter="url(#blur3)" />
+    </g>
+
+    <!-- 입체 음영 -->
+    <circle cx="270" cy="180" r="118" fill="url(#moonShade)" />
+
+    <!-- 왼쪽 위 하이라이트 -->
+    <ellipse cx="226" cy="122" rx="58" ry="44" fill="#FFFFFF" opacity="0.42" filter="url(#blur6)" />
+    <path
+      d="M186 108 A118 118 0 0 1 330 84"
+      fill="none"
+      stroke="#FFFFFF"
+      stroke-width="10"
+      stroke-linecap="round"
+      opacity="0.28"
+      filter="url(#blur6)"
+    />
+
+    <!-- 달 테두리 -->
+    <circle cx="270" cy="180" r="117" fill="none" stroke="#FFFDF4" stroke-width="2.5" opacity="0.65" />
+    <circle cx="270" cy="180" r="118" fill="none" stroke="#E6C99B" stroke-width="1" opacity="0.35" />
+  </g>
+
+  <!-- 토끼 -->
+  <g>
+    <!-- 토끼 그림자 -->
+    <ellipse cx="196" cy="272" rx="52" ry="13" fill="#C79BB8" opacity="0.35" filter="url(#blur6)" />
+
+    <!-- 꼬리 -->
+    <circle cx="236" cy="248" r="14" fill="url(#fur)" />
+
+    <!-- 귀 -->
+    <g transform="rotate(-16 190 150)">
+      <ellipse cx="176" cy="146" rx="13" ry="40" fill="url(#fur)" />
+      <ellipse cx="176" cy="150" rx="6.5" ry="28" fill="url(#innerEar)" opacity="0.9" />
+    </g>
+    <g transform="rotate(11 210 148)">
+      <ellipse cx="214" cy="144" rx="12" ry="37" fill="url(#furHead)" />
+      <ellipse cx="214" cy="148" rx="5.5" ry="25" fill="url(#innerEar)" opacity="0.9" />
+    </g>
+
+    <!-- 몸 -->
+    <ellipse cx="196" cy="240" rx="46" ry="42" fill="url(#fur)" />
+    <!-- 몸 하이라이트 -->
+    <ellipse cx="180" cy="226" rx="26" ry="22" fill="#FFFFFF" opacity="0.55" filter="url(#blur6)" />
+
+    <!-- 팔(달을 안는 모양) -->
+    <ellipse cx="228" cy="238" rx="14" ry="18" transform="rotate(-18 228 238)" fill="url(#fur)" />
+    <ellipse cx="166" cy="244" rx="13" ry="17" transform="rotate(14 166 244)" fill="url(#fur)" />
+
+    <!-- 머리 -->
+    <circle cx="196" cy="190" r="37" fill="url(#furHead)" />
+    <ellipse cx="184" cy="176" rx="18" ry="14" fill="#FFFFFF" opacity="0.6" filter="url(#blur6)" />
+
+    <!-- 볼 -->
+    <ellipse cx="170" cy="200" rx="11" ry="8" fill="url(#cheek)" />
+    <ellipse cx="222" cy="200" rx="11" ry="8" fill="url(#cheek)" />
+
+    <!-- 눈 -->
+    <ellipse cx="180" cy="188" rx="4.6" ry="5.4" fill="#5B4250" />
+    <ellipse cx="212" cy="188" rx="4.6" ry="5.4" fill="#5B4250" />
+    <circle cx="181.8" cy="186.2" r="1.6" fill="#FFFFFF" />
+    <circle cx="213.8" cy="186.2" r="1.6" fill="#FFFFFF" />
+
+    <!-- 코 -->
+    <path d="M196 198 l4.6 3.4 q-4.6 4.4 -9.2 0 z" fill="#F58FB4" />
+
+    <!-- 입 -->
+    <path d="M196 203.5 q-4.5 5 -9 0.6" fill="none" stroke="#D08FA6" stroke-width="1.8" stroke-linecap="round" />
+    <path d="M196 203.5 q4.5 5 9 0.6" fill="none" stroke="#D08FA6" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- 수염 -->
+    <g stroke="#E3C0CE" stroke-width="1.2" stroke-linecap="round" opacity="0.85">
+      <path d="M170 196 l-14 -3" />
+      <path d="M170 200 l-15 2" />
+      <path d="M222 196 l14 -3" />
+      <path d="M222 200 l15 2" />
+    </g>
+  </g>
+
+  <!-- 반짝이 -->
+  <g fill="#FFC6DC">
+    <path d="M96 122 l2.8 7.4 7.4 2.8 -7.4 2.8 -2.8 7.4 -2.8 -7.4 -7.4 -2.8 7.4 -2.8 z" opacity="0.85" />
+    <path d="M392 292 l2.2 5.8 5.8 2.2 -5.8 2.2 -2.2 5.8 -2.2 -5.8 -5.8 -2.2 5.8 -2.2 z" opacity="0.7" />
+    <path d="M372 96 l1.8 4.6 4.6 1.8 -4.6 1.8 -1.8 4.6 -1.8 -4.6 -4.6 -1.8 4.6 -1.8 z" opacity="0.6" />
+    <path d="M118 300 l1.6 4.2 4.2 1.6 -4.2 1.6 -1.6 4.2 -1.6 -4.2 -4.2 -1.6 4.2 -1.6 z" opacity="0.55" />
+    <circle cx="352" cy="60" r="2.4" opacity="0.6" />
+    <circle cx="70" cy="210" r="2" opacity="0.5" />
+  </g>
+</svg>
