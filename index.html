@@ -59,6 +59,19 @@
         </div>
 
         <form class="card form" id="saju-form" novalidate>
+          <div class="mode" role="radiogroup" aria-label="보기 방식">
+            <label class="mode__item">
+              <input type="radio" name="mode" value="solo" checked />
+              <span>혼자 보기</span>
+            </label>
+            <label class="mode__item">
+              <input type="radio" name="mode" value="compat" />
+              <span>궁합 보기</span>
+            </label>
+          </div>
+
+          <p class="form__group-label" id="group1-label">나의 정보</p>
+
           <div class="form__grid">
             <div class="field">
               <label class="field__label" for="name">이름 <span class="field__hint">(선택)</span></label>
@@ -73,7 +86,7 @@
             <div class="field">
               <label class="field__label" for="birthtime">태어난 시각</label>
               <div class="field__row">
-                <input class="input" id="birthtime" name="birthtime" type="time" value="12:00" />
+                <input class="input" id="birthtime" name="birthtime" type="time" />
                 <label class="check">
                   <input id="time-unknown" type="checkbox" />
                   <span class="check__box" aria-hidden="true"></span>
@@ -97,36 +110,81 @@
             </div>
           </div>
 
-          <div class="field field--full">
-            <span class="field__label">오늘은 어떤 이야기가 궁금한가요?</span>
-            <div class="chips" role="radiogroup" aria-label="운세 주제">
-              <label class="chip">
-                <input type="radio" name="topic" value="general" checked />
-                <span>종합운</span>
-              </label>
-              <label class="chip">
-                <input type="radio" name="topic" value="wealth" />
-                <span>재물운</span>
-              </label>
-              <label class="chip">
-                <input type="radio" name="topic" value="love" />
-                <span>연애운</span>
-              </label>
-              <label class="chip">
-                <input type="radio" name="topic" value="career" />
-                <span>직업운</span>
-              </label>
-              <label class="chip">
-                <input type="radio" name="topic" value="health" />
-                <span>건강운</span>
-              </label>
+          <!-- 궁합: 두 번째 사람 -->
+          <div class="person2" id="person2" hidden>
+            <p class="form__group-label" id="group2-label">상대방 정보</p>
+
+            <div class="form__grid">
+              <div class="field">
+                <label class="field__label" for="name2">이름 <span class="field__hint">(선택)</span></label>
+                <input class="input" id="name2" type="text" placeholder="달빛" maxlength="20" />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="birthdate2">생년월일 <span class="field__hint">(양력)</span></label>
+                <input class="input" id="birthdate2" type="date" min="1900-01-01" max="2100-12-31" />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="birthtime2">태어난 시각</label>
+                <div class="field__row">
+                  <input class="input" id="birthtime2" type="time" />
+                  <label class="check">
+                    <input id="time-unknown2" type="checkbox" />
+                    <span class="check__box" aria-hidden="true"></span>
+                    <span class="check__text">시간을 몰라요</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field__label">성별</span>
+                <div class="segmented" role="radiogroup" aria-label="상대방 성별">
+                  <label class="segmented__item">
+                    <input type="radio" name="gender2" value="male" checked />
+                    <span>남성</span>
+                  </label>
+                  <label class="segmented__item">
+                    <input type="radio" name="gender2" value="female" />
+                    <span>여성</span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="field field--full field--year">
-            <label class="field__label" for="target-year">언제의 운세를 볼까요?</label>
-            <div class="select-wrap">
-              <select class="input select" id="target-year" name="targetyear"></select>
+          <div class="solo-options" id="solo-options">
+            <div class="field field--full">
+              <span class="field__label">오늘은 어떤 이야기가 궁금한가요?</span>
+              <div class="chips" role="radiogroup" aria-label="운세 주제">
+                <label class="chip">
+                  <input type="radio" name="topic" value="general" checked />
+                  <span>종합운</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="topic" value="wealth" />
+                  <span>재물운</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="topic" value="love" />
+                  <span>연애운</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="topic" value="career" />
+                  <span>직업운</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="topic" value="health" />
+                  <span>건강운</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field field--full field--year">
+              <label class="field__label" for="target-year">언제의 운세를 볼까요?</label>
+              <div class="select-wrap">
+                <select class="input select" id="target-year" name="targetyear"></select>
+              </div>
             </div>
           </div>
 
@@ -134,7 +192,7 @@
 
           <button class="submit" type="submit">
             <span class="submit__star" aria-hidden="true">✧</span>
-            <span>별에게 물어보기</span>
+            <span id="submit-text">별에게 물어보기</span>
             <span class="submit__star" aria-hidden="true">✧</span>
           </button>
         </form>
@@ -221,6 +279,48 @@
 
         <p class="again">
           다른 날짜로도 볼 수 있어요.
+          <a href="#form" class="again__link">다시 물어보기</a>
+        </p>
+      </section>
+
+      <!-- 궁합 결과 -->
+      <section class="section section--result" id="compat-result" hidden>
+        <div class="section__head">
+          <p class="result__eyebrow">두 사람의 별이 만났어요</p>
+          <h2 class="section__title">궁합 풀이</h2>
+          <p class="section__sub" id="compat-sub"></p>
+        </div>
+
+        <div class="couple" id="couple"></div>
+
+        <div class="results-grid">
+          <article class="card panel">
+            <h3 class="panel__title"><span aria-hidden="true">✦</span> 궁합 온도</h3>
+            <div class="score">
+              <div class="score__ring" id="score-ring">
+                <span class="score__num" id="score-num">0</span>
+                <span class="score__unit">점</span>
+              </div>
+              <p class="score__grade" id="score-grade"></p>
+            </div>
+          </article>
+
+          <article class="card panel">
+            <h3 class="panel__title"><span aria-hidden="true">✦</span> 우리 사이의 결</h3>
+            <ul class="aspects" id="compat-aspects"></ul>
+          </article>
+        </div>
+
+        <article class="card fortune">
+          <h3 class="fortune__title" id="compat-title"></h3>
+          <p class="fortune__summary" id="compat-summary"></p>
+          <ul class="fortune__list" id="compat-guidance"></ul>
+          <div class="fortune__tip" id="compat-tip"></div>
+          <p class="fortune__caveat" id="compat-caveat"></p>
+        </article>
+
+        <p class="again">
+          다른 사람과도 볼 수 있어요.
           <a href="#form" class="again__link">다시 물어보기</a>
         </p>
       </section>

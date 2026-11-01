@@ -620,6 +620,245 @@ function renderTodayFortune(result) {
     "오늘의 운세는 하루의 리듬을 가볍게 점검하는 참고용 해석이에요. 결정을 대신하지 않습니다.";
 }
 
+/* ---------- 궁합 ---------- */
+
+const BRANCH_HE = [["자", "축"], ["인", "해"], ["묘", "술"], ["진", "유"], ["사", "신"], ["오", "미"]];
+const BRANCH_CHUNG = [["자", "오"], ["축", "미"], ["인", "신"], ["묘", "유"], ["진", "술"], ["사", "해"]];
+const BRANCH_SAMHE = [["신", "자", "진"], ["인", "오", "술"], ["사", "유", "축"], ["해", "묘", "미"]];
+
+const COUPLE_RELATION = {
+  비겁: {
+    title: "친구처럼 편한 사이",
+    text: "같은 오행이라 설명하지 않아도 통하는 게 많아요. 대신 서로 비슷해서 새로운 자극은 적을 수 있어요."
+  },
+  식상: {
+    title: "내가 상대를 채워주는 사이",
+    text: "내 기운이 상대에게 흘러가는 구조예요. 베푸는 게 익숙한 만큼, 받는 연습도 함께 필요해요."
+  },
+  재성: {
+    title: "한쪽이 방향을 잡아주는 사이",
+    text: "현실 감각이 좋아 함께하면 생활이 정돈돼요. 다만 이끄는 쪽이 지치지 않게 속도를 맞춰야 해요."
+  },
+  관성: {
+    title: "상대가 나를 이끄는 사이",
+    text: "배울 점이 많은 인연이에요. 다만 규칙이 많아지면 숨이 막힐 수 있으니 여백을 남겨두세요."
+  },
+  인성: {
+    title: "상대가 나를 채워주는 사이",
+    text: "기대고 싶어지는 편안함이 있어요. 고마움을 말로 표현하면 관계가 훨씬 오래갑니다."
+  }
+};
+
+const GRADE = [
+  { min: 80, text: "아주 잘 맞는 편이에요 ✦" },
+  { min: 65, text: "잘 맞는 편이에요" },
+  { min: 50, text: "무난하게 맞춰가는 편이에요" },
+  { min: 0, text: "조금씩 맞춰가는 편이에요" }
+];
+
+function clampNumber(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function pairMatch(list, a, b) {
+  return list.some(function (pair) {
+    return (pair[0] === a && pair[1] === b) || (pair[0] === b && pair[1] === a);
+  });
+}
+
+function branchBond(a, b) {
+  if (pairMatch(BRANCH_HE, a, b)) {
+    return { label: "육합", delta: 8, text: "서로를 끌어당기는 육합의 짝이에요. 함께 있으면 자연스럽게 가까워져요." };
+  }
+  if (BRANCH_SAMHE.some(function (group) {
+    return group.indexOf(a) >= 0 && group.indexOf(b) >= 0 && a !== b;
+  })) {
+    return { label: "삼합", delta: 6, text: "같은 방향을 바라보는 삼합의 짝이에요. 취향과 목표가 잘 겹쳐요." };
+  }
+  if (pairMatch(BRANCH_CHUNG, a, b)) {
+    return { label: "충", delta: -8, text: "부딪히는 충의 짝이에요. 말의 온도만 낮추면 오히려 좋은 자극이 돼요." };
+  }
+  return { label: "담백", delta: 0, text: "특별히 얽히지도 부딪히지도 않는 담백한 짝이에요." };
+}
+
+function uniqueList(list) {
+  return list.filter(function (item, index) {
+    return list.indexOf(item) === index;
+  });
+}
+
+function compatibilityOf(first, second) {
+  const shared = ELEMENT_CYCLE.filter(function (element) {
+    return first.dominant.indexOf(element) >= 0 && second.dominant.indexOf(element) >= 0;
+  });
+  const fillFirst = ELEMENT_CYCLE.filter(function (element) {
+    return first.weak.indexOf(element) >= 0 && second.dominant.indexOf(element) >= 0;
+  });
+  const fillSecond = ELEMENT_CYCLE.filter(function (element) {
+    return second.weak.indexOf(element) >= 0 && first.dominant.indexOf(element) >= 0;
+  });
+  const complementary = uniqueList(fillFirst.concat(fillSecond));
+
+  const sameDay = first.pillars.day.stemElement === second.pillars.day.stemElement;
+  const bond = branchBond(first.pillars.day.branch, second.pillars.day.branch);
+  const relation = relationOf(first.pillars.day.stemElement, second.pillars.day.stemElement);
+  const relationDelta = relation === "비겁" ? 0 : relation === "관성" ? -2 : 6;
+
+  const score = clampNumber(
+    50 + shared.length * 8 + complementary.length * 10 + (sameDay ? 8 : 0) + bond.delta + relationDelta,
+    12,
+    98
+  );
+
+  return {
+    shared: shared,
+    fillFirst: fillFirst,
+    fillSecond: fillSecond,
+    complementary: complementary,
+    sameDay: sameDay,
+    bond: bond,
+    relation: relation,
+    score: score
+  };
+}
+
+function gradeOf(score) {
+  for (let i = 0; i < GRADE.length; i += 1) {
+    if (score >= GRADE[i].min) return GRADE[i].text;
+  }
+  return GRADE[GRADE.length - 1].text;
+}
+
+function addAspect(list, title, text) {
+  const item = el("li");
+  const icon = el("span", "aspects__icon", "✦");
+  icon.setAttribute("aria-hidden", "true");
+  const body = el("div", "aspects__body");
+  body.appendChild(el("strong", null, title));
+  body.appendChild(el("span", null, text));
+  item.appendChild(icon);
+  item.appendChild(body);
+  list.appendChild(item);
+}
+
+function coupleCard(person, result, fallbackName) {
+  const card = el("article", "couple__person");
+  card.appendChild(el("h3", "couple__name", person.name || fallbackName));
+  card.appendChild(
+    el(
+      "p",
+      "couple__meta",
+      ELEMENTS[result.pillars.day.stemElement].ko + " 일간 · " + (person.gender === "male" ? "남성" : "여성")
+    )
+  );
+
+  const wrap = el("div", "couple__pillars");
+  ["year", "month", "day", "hour"].forEach(function (key) {
+    const pillar = result.pillars[key];
+    const chip = el("span", "couple__pillar", pillar ? pillar.label : "—");
+    if (pillar) chip.appendChild(el("small", null, pillar.hanja));
+    wrap.appendChild(chip);
+  });
+  card.appendChild(wrap);
+
+  return card;
+}
+
+function renderCompatibility(first, second) {
+  const a = analyze(first.birth, first.timeUnknown);
+  const b = analyze(second.birth, second.timeUnknown);
+  const info = compatibilityOf(a, b);
+  const nameA = first.name || "첫 번째 사람";
+  const nameB = second.name || "상대방";
+
+  const couple = document.getElementById("couple");
+  couple.textContent = "";
+  couple.appendChild(coupleCard(first, a, "첫 번째 사람"));
+  const heart = el("div", "couple__heart", "✦");
+  heart.setAttribute("aria-hidden", "true");
+  couple.appendChild(heart);
+  couple.appendChild(coupleCard(second, b, "상대방"));
+
+  const ring = document.getElementById("score-ring");
+  const num = document.getElementById("score-num");
+  ring.style.setProperty("--p", 0);
+  num.textContent = "0";
+  window.setTimeout(function () {
+    ring.style.setProperty("--p", info.score);
+    num.textContent = String(info.score);
+  }, 160);
+
+  document.getElementById("score-grade").textContent = gradeOf(info.score);
+
+  const aspects = document.getElementById("compat-aspects");
+  aspects.textContent = "";
+
+  const relation = COUPLE_RELATION[info.relation];
+  addAspect(aspects, relation.title, relation.text);
+
+  addAspect(
+    aspects,
+    info.shared.length ? "닮은 기운 " + fmt.list(info.shared) : "겹치는 기운이 적은 편",
+    info.shared.length
+      ? "설명하지 않아도 통하는 부분이 있어요. 편한 만큼 서로 물러서는 연습이 필요해요."
+      : "서로 다른 결이 많아요. 그만큼 대화가 관계의 연료가 됩니다."
+  );
+
+  addAspect(
+    aspects,
+    info.complementary.length ? "서로 채워주는 기운 " + fmt.list(info.complementary) : "서로의 빈 곳을 채워주지 않는 조합",
+    info.complementary.length
+      ? (info.fillFirst.length ? nameB + "님이 " + nameA + "님의 빈 곳(" + fmt.list(info.fillFirst) + ")을 채워줘요. " : "") +
+        (info.fillSecond.length ? nameA + "님이 " + nameB + "님의 빈 곳(" + fmt.list(info.fillSecond) + ")을 채워줘요." : "")
+      : "각자 부족한 곳을 스스로 돌보면 관계가 한결 편안해져요."
+  );
+
+  addAspect(
+    aspects,
+    info.bond.label === "담백" ? "담백한 지지 관계" : info.bond.label + "의 지지 관계",
+    info.bond.text
+  );
+
+  const dayA = ELEMENTS[a.pillars.day.stemElement];
+  const dayB = ELEMENTS[b.pillars.day.stemElement];
+
+  document.getElementById("compat-sub").textContent =
+    dayA.ko + " 일간과 " + dayB.ko + " 일간, 두 사람의 기운이 만나는 지점을 봤어요.";
+  document.getElementById("compat-title").textContent =
+    nameA + " · " + nameB + "의 궁합은 " + info.score + "점";
+  document.getElementById("compat-summary").textContent =
+    relation.title + "예요. " + relation.text + " " +
+    (info.shared.length
+      ? "닮은 기운이 있어 처음부터 편안함이 느껴지는 조합이에요."
+      : "닮은 기운은 적지만, 서로 다른 결이 관계를 넓혀줘요.");
+
+  const guidance = document.getElementById("compat-guidance");
+  guidance.textContent = "";
+  [
+    info.bond.delta < 0
+      ? "부딪히는 순간에는 결론을 미루고, 다음 날 다시 이야기해 보세요."
+      : "좋은 흐름일 때 고마움을 자주 말해두면 관계가 단단해져요.",
+    info.complementary.length
+      ? "서로 채워주는 기운을 살려, 잘하는 쪽이 자연스럽게 맡아주세요."
+      : "같이 부족한 부분은 역할을 나눠서 채워보세요.",
+    "중요한 결정은 감정이 가라앉은 뒤에 이야기하면 훨씬 부드러워져요."
+  ].forEach(function (line) {
+    guidance.appendChild(el("li", null, line));
+  });
+
+  const tip = document.getElementById("compat-tip");
+  tip.textContent = "";
+  tip.appendChild(el("strong", null, "별빛 한마디"));
+  tip.appendChild(
+    document.createTextNode(
+      "궁합 점수는 두 사람의 기운이 얼마나 자연스럽게 흐르는지를 본 값이에요. 낮다고 관계가 나쁜 게 아니라, 맞춰가는 방식이 다르다는 뜻이에요."
+    )
+  );
+
+  document.getElementById("compat-caveat").textContent =
+    "궁합 풀이는 관계를 재미있게 돌아보는 참고 자료이며, 이별이나 결혼을 결정하지 않습니다.";
+}
+
 /* ---------- 이벤트 ---------- */
 
 function initYearSelect() {
@@ -636,10 +875,54 @@ function initYearSelect() {
 }
 
 function initTimeUnknown() {
-  const check = document.getElementById("time-unknown");
-  const time = document.getElementById("birthtime");
+  bindTimeUnknown("time-unknown", "birthtime");
+  bindTimeUnknown("time-unknown2", "birthtime2");
+}
+
+function bindTimeUnknown(checkId, timeId) {
+  const check = document.getElementById(checkId);
+  const time = document.getElementById(timeId);
+  if (!check || !time) return;
   check.addEventListener("change", function () {
     time.disabled = check.checked;
+  });
+}
+
+function pad2(value) {
+  return value < 10 ? "0" + value : String(value);
+}
+
+/* 생년월일·시간 기본값 = 오늘 / 현재 시각 */
+function initDefaults() {
+  const now = new Date();
+  const dateStr = now.getFullYear() + "-" + pad2(now.getMonth() + 1) + "-" + pad2(now.getDate());
+  const timeStr = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+
+  ["birthdate", "birthdate2"].forEach(function (id) {
+    const node = document.getElementById(id);
+    if (node) node.value = dateStr;
+  });
+  ["birthtime", "birthtime2"].forEach(function (id) {
+    const node = document.getElementById(id);
+    if (node) node.value = timeStr;
+  });
+}
+
+function initMode() {
+  const form = document.getElementById("saju-form");
+  const person2 = document.getElementById("person2");
+  const soloOptions = document.getElementById("solo-options");
+  const submitText = document.getElementById("submit-text");
+  const group1 = document.getElementById("group1-label");
+
+  form.addEventListener("change", function (event) {
+    if (!event.target || event.target.name !== "mode") return;
+
+    const compat = event.target.value === "compat";
+    person2.hidden = !compat;
+    soloOptions.hidden = compat;
+    submitText.textContent = compat ? "궁합 보기" : "별에게 물어보기";
+    group1.textContent = compat ? "첫 번째 사람" : "나의 정보";
   });
 }
 
@@ -647,43 +930,69 @@ function initForm() {
   const form = document.getElementById("saju-form");
   const error = document.getElementById("form-error");
   const resultSection = document.getElementById("result");
+  const compatSection = document.getElementById("compat-result");
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     error.hidden = true;
 
-    const dateValue = document.getElementById("birthdate").value;
-    if (!dateValue) {
+    const mode = (form.querySelector('input[name="mode"]:checked') || {}).value || "solo";
+    const first = readPerson(form, {
+      name: "name",
+      date: "birthdate",
+      time: "birthtime",
+      unknown: "time-unknown",
+      gender: "gender"
+    });
+
+    if (!first) {
       error.textContent = "생년월일을 먼저 알려주세요.";
       error.hidden = false;
       document.getElementById("birthdate").focus();
       return;
     }
 
-    const timeUnknown = document.getElementById("time-unknown").checked;
-    const timeValue = document.getElementById("birthtime").value || "12:00";
-    const parts = dateValue.split("-").map(Number);
-    const times = timeValue.split(":").map(Number);
+    if (mode === "compat") {
+      const second = readPerson(form, {
+        name: "name2",
+        date: "birthdate2",
+        time: "birthtime2",
+        unknown: "time-unknown2",
+        gender: "gender2"
+      });
 
-    const birth = new Date(parts[0], parts[1] - 1, parts[2], timeUnknown ? 0 : times[0], timeUnknown ? 0 : times[1], 0);
-    if (isNaN(birth.getTime())) {
-      error.textContent = "날짜를 다시 확인해 주세요.";
-      error.hidden = false;
+      if (!second) {
+        error.textContent = "상대방의 생년월일도 알려주세요.";
+        error.hidden = false;
+        document.getElementById("birthdate2").focus();
+        return;
+      }
+
+      renderCompatibility(first, second);
+
+      resultSection.hidden = true;
+      compatSection.hidden = false;
+      compatSection.classList.remove("is-visible");
+      void compatSection.offsetWidth;
+      compatSection.classList.add("is-visible");
+
+      window.setTimeout(function () {
+        compatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 90);
       return;
     }
 
-    const name = document.getElementById("name").value.trim();
     const topic = (form.querySelector('input[name="topic"]:checked') || {}).value || "general";
     const targetYear = Number(document.getElementById("target-year").value);
-
-    const result = analyze(birth, timeUnknown);
+    const result = analyze(first.birth, first.timeUnknown);
 
     renderPillars(result.pillars);
     renderElements(result.counts, result.dominant, result.weak);
     renderDayMaster(result.pillars, result.strength, result.useful);
-    renderFortune(result, topic, targetYear, timeUnknown, name);
+    renderFortune(result, topic, targetYear, first.timeUnknown, first.name);
     renderTodayFortune(result);
 
+    compatSection.hidden = true;
     resultSection.hidden = false;
     resultSection.classList.remove("is-visible");
     void resultSection.offsetWidth;
@@ -695,9 +1004,42 @@ function initForm() {
   });
 }
 
+/* 폼에서 한 사람의 정보 읽기 */
+function readPerson(form, ids) {
+  const dateValue = document.getElementById(ids.date).value;
+  if (!dateValue) return null;
+
+  const timeUnknown = document.getElementById(ids.unknown).checked;
+  const timeValue = document.getElementById(ids.time).value || "12:00";
+  const parts = dateValue.split("-").map(Number);
+  const times = timeValue.split(":").map(Number);
+
+  const birth = new Date(
+    parts[0],
+    parts[1] - 1,
+    parts[2],
+    timeUnknown ? 0 : times[0],
+    timeUnknown ? 0 : times[1],
+    0
+  );
+
+  if (isNaN(birth.getTime())) return null;
+
+  const genderInput = form.querySelector('input[name="' + ids.gender + '"]:checked');
+
+  return {
+    name: document.getElementById(ids.name).value.trim(),
+    birth: birth,
+    timeUnknown: timeUnknown,
+    gender: genderInput ? genderInput.value : "female"
+  };
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initYearSelect();
   initTimeUnknown();
+  initDefaults();
+  initMode();
   initForm();
   renderToday();
 });
