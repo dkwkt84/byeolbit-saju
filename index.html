@@ -140,6 +140,34 @@
         </form>
       </section>
 
+      <!-- 오늘의 운세 (출생 정보 없이도 볼 수 있는 카드) -->
+      <section class="section section--today" id="today">
+        <article class="card today-card">
+          <div class="today-card__top">
+            <h2 class="today-card__title">
+              <span aria-hidden="true">✧</span>
+              오늘의 별빛
+            </h2>
+            <span class="today-card__date" id="today-date"></span>
+          </div>
+
+          <div class="today-card__body">
+            <div class="today-card__pillar">
+              <span class="today-card__hanja" id="today-hanja">庚午</span>
+              <span class="today-card__label" id="today-label">경오일</span>
+            </div>
+            <div class="today-card__text">
+              <p class="today-card__line" id="today-line"></p>
+              <div class="today-card__tags" id="today-tags"></div>
+            </div>
+          </div>
+
+          <p class="today-card__hint">
+            생년월일을 알려주시면, 오늘의 기운이 <strong>내 사주에 어떻게 닿는지</strong>까지 이어서 풀이해 드려요.
+          </p>
+        </article>
+      </section>
+
       <section class="section section--result" id="result" hidden>
         <div class="section__head">
           <p class="result__eyebrow" id="result-eyebrow">별이 답을 내려보냈어요</p>
@@ -177,6 +205,18 @@
           <ul class="fortune__list" id="fortune-guidance"></ul>
           <div class="fortune__tip" id="fortune-tip"></div>
           <p class="fortune__caveat" id="fortune-caveat"></p>
+        </article>
+
+        <!-- 오늘의 운세 (내 사주 기준) -->
+        <article class="card fortune fortune--today" id="today-fortune">
+          <div class="fortune__head">
+            <span class="fortune__badge">오늘의 운세</span>
+            <span class="fortune__year" id="today-fortune-date"></span>
+          </div>
+          <h3 class="fortune__title" id="today-fortune-title"></h3>
+          <p class="fortune__summary" id="today-fortune-summary"></p>
+          <ul class="fortune__list" id="today-fortune-list"></ul>
+          <p class="fortune__caveat" id="today-fortune-caveat"></p>
         </article>
 
         <p class="again">

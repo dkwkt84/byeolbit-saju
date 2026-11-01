@@ -87,6 +87,67 @@ const ELEMENTS = {
   }
 };
 
+/* 오늘의 기운 태그 */
+const ELEMENT_TAGS = {
+  wood: ["새 시작", "성장", "산책"],
+  fire: ["표현", "열정", "만남"],
+  earth: ["안정", "정리", "든든함"],
+  metal: ["결단", "마무리", "정돈"],
+  water: ["휴식", "사색", "흐름"]
+};
+
+const ELEMENT_DAYLINE = {
+  wood: "새로 시작하기 좋은 날이에요. 몸을 움직이면 기운이 트여요.",
+  fire: "마음이 환해지는 날이에요. 표현할수록 좋아져요.",
+  earth: "천천히 가도 괜찮은 날이에요. 정리와 따뜻한 식사가 힘이 돼요.",
+  metal: "미뤄둔 일을 마무리하기 좋은 날이에요. 맺고 끊는 결단이 잘 통해요.",
+  water: "생각이 깊어지는 날이에요. 혼자만의 시간이 약이 돼요."
+};
+
+/* 오늘의 일진과 내 일간의 관계 */
+const DAY_RELATION = {
+  비겁: {
+    name: "나와 같은 기운이 도는 날",
+    summary: "내 페이스가 그대로 통하는 날이에요. 다만 힘이 겹치면 고집으로 보일 수 있어요.",
+    guidance: [
+      "결정을 혼자 밀어붙이기보다 한 번 더 물어보세요.",
+      "약속을 조금 줄이고 체력을 아끼면 하루가 편안해져요."
+    ]
+  },
+  식상: {
+    name: "내 기운이 밖으로 흐르는 날",
+    summary: "말과 표현이 잘 통하는 날이에요. 만들고, 쓰고, 이야기하는 일에 힘이 붙어요.",
+    guidance: [
+      "하고 싶던 말이 있다면 오늘 꺼내보세요.",
+      "집중력이 흩어지기 쉬우니 한 가지에만 붙잡으세요."
+    ]
+  },
+  재성: {
+    name: "성과가 눈에 보이는 날",
+    summary: "실무 감각과 돈을 다루는 감각이 올라오는 날이에요. 결과로 확인되는 하루예요.",
+    guidance: [
+      "미뤄둔 실무와 서류를 오늘 처리해 보세요.",
+      "지출은 한 번 더 확인하면 새는 돈을 막을 수 있어요."
+    ]
+  },
+  관성: {
+    name: "책임이 조금 무거워지는 날",
+    summary: "해야 할 일이 먼저 눈에 들어오는 날이에요. 규칙을 지키면 오히려 마음이 편해져요.",
+    guidance: [
+      "약속과 마감을 아침에 미리 정리해 두세요.",
+      "몸이 긴장하기 쉬우니 어깨와 목을 자주 풀어주세요."
+    ]
+  },
+  인성: {
+    name: "도움과 회복이 들어오는 날",
+    summary: "배움과 쉼이 잘 맞는 날이에요. 누군가의 조언이 오래 남을 수 있어요.",
+    guidance: [
+      "책·강의·정리 노트처럼 머리에 담는 일이 잘 돼요.",
+      "사람보다 혼자 충전하는 시간이 회복에 도움이 돼요."
+    ]
+  }
+};
+
 /* 일간 열 가지의 짧은 기질 */
 const STEM_STORY = {
   갑: "큰 나무처럼 곧게 자라려는 사람",
@@ -277,6 +338,26 @@ function generatingElement(element) {
 
 function controllingElement(element) {
   return { wood: "metal", fire: "water", earth: "wood", metal: "fire", water: "earth" }[element];
+}
+
+/* 내가 극하는(다스리는) 오행 = 재성 */
+function controlledElement(element) {
+  return ELEMENT_CYCLE[mod(ELEMENT_CYCLE.indexOf(element) + 2, 5)];
+}
+
+/* 오늘 일진과 내 일간의 십성 관계 */
+function relationOf(dayElement, todayElement) {
+  if (dayElement === todayElement) return "비겁";
+  if (controlledElement(dayElement) === todayElement) return "재성";
+  if (controlledElement(todayElement) === dayElement) return "관성";
+  if (ELEMENT_CYCLE[mod(ELEMENT_CYCLE.indexOf(dayElement) + 1, 5)] === todayElement) return "식상";
+  return "인성";
+}
+
+function todayPillar(date) {
+  const d = date || new Date();
+  const p = calcPillars(d.getFullYear(), d.getMonth() + 1, d.getDate(), null);
+  return { date: d, day: p.day };
 }
 
 function dayMasterStrength(pillars, counts) {
@@ -489,6 +570,56 @@ function renderFortune(result, topic, targetYear, timeUnknown, name) {
     " 정답이 아니라, 나를 알아가는 참고로만 봐주세요.";
 }
 
+/* 오늘의 운세 */
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+function formatDateKo(date) {
+  return date.getMonth() + 1 + "월 " + date.getDate() + "일 (" + WEEKDAYS[date.getDay()] + ")";
+}
+
+function renderToday() {
+  const info = todayPillar();
+  const day = info.day;
+  const element = day.stemElement;
+
+  document.getElementById("today-date").textContent = formatDateKo(info.date);
+  document.getElementById("today-hanja").textContent = day.hanja;
+  document.getElementById("today-label").textContent = day.label + "일";
+  document.getElementById("today-line").textContent =
+    day.stem + day.branch + "일 · " + ELEMENTS[element].ko + "(" + ELEMENTS[element].hanja + ") 기운이 하루를 감싸요. " +
+    ELEMENT_DAYLINE[element];
+
+  const tags = document.getElementById("today-tags");
+  tags.textContent = "";
+  ELEMENT_TAGS[element].forEach(function (word) {
+    tags.appendChild(el("span", null, word));
+  });
+}
+
+function renderTodayFortune(result) {
+  const info = todayPillar();
+  const today = info.day;
+  const relation = relationOf(result.pillars.day.stemElement, today.stemElement);
+  const data = DAY_RELATION[relation];
+
+  document.getElementById("today-fortune-date").textContent =
+    formatDateKo(info.date) + " · " + today.label + "일";
+
+  document.getElementById("today-fortune-title").textContent = data.name;
+  document.getElementById("today-fortune-summary").textContent =
+    ELEMENTS[result.pillars.day.stemElement].ko + " 일간인 나에게 오늘은 " + relation + "의 기운이 들어와요. " + data.summary;
+
+  const list = document.getElementById("today-fortune-list");
+  list.textContent = "";
+  data.guidance.forEach(function (line) {
+    list.appendChild(el("li", null, line));
+  });
+
+  document.getElementById("today-fortune-caveat").textContent =
+    "오늘의 운세는 하루의 리듬을 가볍게 점검하는 참고용 해석이에요. 결정을 대신하지 않습니다.";
+}
+
 /* ---------- 이벤트 ---------- */
 
 function initYearSelect() {
@@ -551,6 +682,7 @@ function initForm() {
     renderElements(result.counts, result.dominant, result.weak);
     renderDayMaster(result.pillars, result.strength, result.useful);
     renderFortune(result, topic, targetYear, timeUnknown, name);
+    renderTodayFortune(result);
 
     resultSection.hidden = false;
     resultSection.classList.remove("is-visible");
@@ -567,4 +699,5 @@ document.addEventListener("DOMContentLoaded", function () {
   initYearSelect();
   initTimeUnknown();
   initForm();
+  renderToday();
 });
