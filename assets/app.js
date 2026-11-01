@@ -926,6 +926,57 @@ function initMode() {
   });
 }
 
+/* 입력 초기화 */
+function initReset() {
+  const button = document.getElementById("reset-button");
+  if (!button) return;
+
+  button.addEventListener("click", function () {
+    const form = document.getElementById("saju-form");
+    const error = document.getElementById("form-error");
+
+    ["name", "name2"].forEach(function (id) {
+      const node = document.getElementById(id);
+      if (node) node.value = "";
+    });
+
+    initDefaults();
+
+    const female = form.querySelector('input[name="gender"][value="female"]');
+    const male2 = form.querySelector('input[name="gender2"][value="male"]');
+    if (female) female.checked = true;
+    if (male2) male2.checked = true;
+
+    const general = form.querySelector('input[name="topic"][value="general"]');
+    if (general) general.checked = true;
+
+    const year = document.getElementById("target-year");
+    if (year) year.selectedIndex = 0;
+
+    ["time-unknown", "time-unknown2"].forEach(function (id) {
+      const node = document.getElementById(id);
+      if (node) node.checked = false;
+    });
+    ["birthtime", "birthtime2"].forEach(function (id) {
+      const node = document.getElementById(id);
+      if (node) node.disabled = false;
+    });
+
+    const solo = form.querySelector('input[name="mode"][value="solo"]');
+    if (solo) {
+      solo.checked = true;
+      solo.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    if (error) error.hidden = true;
+
+    document.getElementById("result").hidden = true;
+    document.getElementById("compat-result").hidden = true;
+
+    window.scrollTo({ top: document.getElementById("form").offsetTop - 10, behavior: "smooth" });
+  });
+}
+
 function initForm() {
   const form = document.getElementById("saju-form");
   const error = document.getElementById("form-error");
@@ -1040,6 +1091,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initTimeUnknown();
   initDefaults();
   initMode();
+  initReset();
   initForm();
   renderToday();
 });
