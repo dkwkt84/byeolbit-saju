@@ -661,10 +661,21 @@ body {
 }
 
 .bar {
+  display: block;
+}
+
+.bar__row {
   display: grid;
   grid-template-columns: 62px 1fr 30px;
   align-items: center;
   gap: 12px;
+}
+
+.bar__desc {
+  margin: 7px 0 0 74px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #8b7884;
 }
 
 .bar__name {
@@ -1005,9 +1016,14 @@ body {
     padding: 8px 22px;
   }
 
-  .bar {
+  .bar__row {
     grid-template-columns: 54px 1fr 26px;
     gap: 9px;
+  }
+
+  .bar__desc {
+    margin-left: 63px;
+    font-size: 12px;
   }
 }
 

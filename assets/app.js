@@ -35,11 +35,56 @@ const BRANCHES = [
 const ELEMENT_CYCLE = ["wood", "fire", "earth", "metal", "water"];
 
 const ELEMENTS = {
-  wood: { ko: "목", hanja: "木", label: "목(木)", color: "#a9d6bd", keyword: "성장" },
-  fire: { ko: "화", hanja: "火", label: "화(火)", color: "#ffb3c6", keyword: "온기" },
-  earth: { ko: "토", hanja: "土", label: "토(土)", color: "#f2dcb9", keyword: "안정" },
-  metal: { ko: "금", hanja: "金", label: "금(金)", color: "#d8d2ec", keyword: "결단" },
-  water: { ko: "수", hanja: "水", label: "수(水)", color: "#b9d8ef", keyword: "흐름" }
+  wood: {
+    ko: "목",
+    hanja: "木",
+    label: "목(木)",
+    color: "#a9d6bd",
+    keyword: "성장",
+    desc: "성장과 시작의 기운",
+    plenty: "밀고 나가는 추진력이 좋아요",
+    short: "시작이 느려질 수 있어요, 산책과 스트레칭으로 채워요"
+  },
+  fire: {
+    ko: "화",
+    hanja: "火",
+    label: "화(火)",
+    color: "#ffb3c6",
+    keyword: "온기",
+    desc: "열정과 표현의 기운",
+    plenty: "기분이 환하고 말이 잘 통해요",
+    short: "의욕이 쉽게 식어요, 햇빛과 따뜻한 차로 채워요"
+  },
+  earth: {
+    ko: "토",
+    hanja: "土",
+    label: "토(土)",
+    color: "#f2dcb9",
+    keyword: "안정",
+    desc: "안정과 중심의 기운",
+    plenty: "중심이 단단해 쉽게 흔들리지 않아요",
+    short: "체력의 바탕이 비어요, 규칙적인 식사로 채워요"
+  },
+  metal: {
+    ko: "금",
+    hanja: "金",
+    label: "금(金)",
+    color: "#d8d2ec",
+    keyword: "결단",
+    desc: "결단과 정리의 기운",
+    plenty: "맺고 끊는 판단이 빨라요",
+    short: "마무리가 흐려져요, 정리 습관으로 채워요"
+  },
+  water: {
+    ko: "수",
+    hanja: "水",
+    label: "수(水)",
+    color: "#b9d8ef",
+    keyword: "흐름",
+    desc: "흐름과 회복의 기운",
+    plenty: "생각이 깊고 유연하게 흘러요",
+    short: "회복이 느려져요, 물과 수면으로 채워요"
+  }
 };
 
 /* 일간 열 가지의 짧은 기질 */
@@ -332,24 +377,38 @@ function renderElements(counts, dominant, weak) {
 
   ELEMENT_CYCLE.forEach(function (key, i) {
     const count = counts[key];
+    const meta = ELEMENTS[key];
+    const isFlat = max === Math.min.apply(null, Object.values(counts));
+
+    let state;
+    if (isFlat) state = "고르게 흐르고 있어요";
+    else if (count === max) state = meta.plenty;
+    else if (count === Math.min.apply(null, Object.values(counts))) state = meta.short;
+    else state = "무난하게 흐르고 있어요";
+
     const row = el("div", "bar" + (count === max ? " bar--max" : "") + (count === 0 ? " bar--zero" : ""));
 
+    const line = el("div", "bar__row");
     const name = el("span", "bar__name");
-    name.appendChild(document.createTextNode(ELEMENTS[key].ko));
-    const small = el("small", null, ELEMENTS[key].hanja);
-    name.appendChild(small);
+    name.appendChild(document.createTextNode(meta.ko));
+    name.appendChild(el("small", null, meta.hanja));
 
     const track = el("div", "bar__track");
     const fill = el("div", "bar__fill");
-    fill.style.setProperty("--bar-color", ELEMENTS[key].color);
+    fill.style.setProperty("--bar-color", meta.color);
     fill.dataset.width = Math.round((count / max) * 100) + "%";
     track.appendChild(fill);
 
     const value = el("span", "bar__value", String(count));
 
-    row.appendChild(name);
-    row.appendChild(track);
-    row.appendChild(value);
+    line.appendChild(name);
+    line.appendChild(track);
+    line.appendChild(value);
+
+    const desc = el("p", "bar__desc", meta.desc + " · " + state);
+
+    row.appendChild(line);
+    row.appendChild(desc);
     bars.appendChild(row);
 
     window.setTimeout(function () {
